@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   student-service:
     build: ./student-service
@@ -36,8 +34,10 @@ services:
       - STUDENT_SERVICE_URL=http://student-service:8001
       - COURSE_SERVICE_URL=http://course-service:8002
     depends_on:
-      - student-service
-      - course-service
+      student-service:
+        condition: service_healthy
+      course-service:
+        condition: service_healthy
     networks:
       - microservices-network
     healthcheck:

@@ -1,5 +1,5 @@
 from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import List, Optional
 import uvicorn
 
@@ -12,10 +12,10 @@ course_id_counter = 1
 
 class Course(BaseModel):
     id: Optional[int] = None
-    name: str
-    code: str
-    credits: int
-    instructor: str
+    name: str = Field(..., min_length=1, max_length=200)
+    code: str = Field(..., min_length=1, max_length=20)
+    credits: int = Field(..., ge=1, le=12)
+    instructor: str = Field(..., min_length=1, max_length=100)
 
 
 @app.get("/")
