@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  student-service:
+    build: ./student-service
+    container_name: student-service
+    ports:
+      - "8001:8001"
+    networks:
+      - microservices-network
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8001/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  course-service:
+    build: ./course-service
+    container_name: course-service
+    ports:
+      - "8002:8002"
+    networks:
+      - microservices-network
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8002/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  api-gateway:
+    build: ./api-gateway
+    container_name: api-gateway
+    ports:
+      - "8000:8000"
+    environment:
+      - STUDENT_SERVICE_URL=http://student-service:8001
+      - COURSE_SERVICE_URL=http://course-service:8002
+    depends_on:
+      - student-service
+      - course-service
+    networks:
+      - microservices-network
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+networks:
+  microservices-network:
+    driver: bridge
